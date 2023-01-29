@@ -4,10 +4,27 @@ import { Inter } from "@next/font/google";
 import styles from "@/styles/Home.module.css";
 import { strings } from "@/constants/strings";
 import Header from "@/components/Header";
+import { useEffect, useState } from "react";
+import { getQuestions, getAllCategories } from "./api/triviaApi/TriviaAPI";
+import { CategoryItem } from "@/components/CategoryItem";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+  const [categories, setCategories] = useState([]);
+  const [questions, setQuestions] = useState([]);
+
+  const getCategoriesAndQuestions = async () => {
+    const categoriesResponse = await getAllCategories();
+    setCategories(categoriesResponse.trivia_categories);
+    const questionsResponse = await getQuestions(20, "easy", "9");
+    setQuestions(questionsResponse.results);
+  };
+
+  useEffect(() => {
+    getCategoriesAndQuestions();
+  }, []);
+
   return (
     <>
       <Head>
@@ -18,6 +35,12 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <Header />
+        <div>
+          <h1>Categories</h1>
+          {categories.map((category) => (
+            <CategoryItem item={category} />
+          ))}
+        </div>
       </main>
     </>
   );
